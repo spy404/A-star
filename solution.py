@@ -1,5 +1,4 @@
 from map import cities
-import heapq
 
 def get_neighbors(city):
     return cities[city]['neighbors'].keys()
@@ -17,16 +16,16 @@ def heuristic(city, end):
     distance = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
     return distance
 
-
 def find(start, end):
     visited = set()
-    distances = {city: float('inf') for city in cities}
-    distances[start] = 0
+    distances = {city: [float('inf'), None] for city in cities}
+    distances[start] = [0, None]
 
     priority_queue = [(0, start)]
 
     while priority_queue:
-        current_distance, current_city = heapq.heappop(priority_queue)
+        current_distance, current_city = min(priority_queue, key=lambda x: x[0])
+        priority_queue.remove((current_distance, current_city))
 
         if current_city == end:
             path = []
@@ -45,10 +44,10 @@ def find(start, end):
                 distance = get_real_distance(current_city, neighbor)
                 new_distance = current_distance + distance
 
-                if new_distance < distances[neighbor]:
-                    distances[neighbor] = (new_distance, current_city)
+                if new_distance < distances[neighbor][0]:
+                    distances[neighbor] = [new_distance, current_city]
                     priority = new_distance + heuristic(neighbor, end)
-                    heapq.heappush(priority_queue, (priority, neighbor))
+                    priority_queue.append((priority, neighbor))
 
     return []
 
